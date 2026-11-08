@@ -9,8 +9,9 @@
 typedef struct static_var
 {
 	char buff[BUFF_SIZE];
-	size_t cur_indx;
-	size_t total;
+	long	size_read;
+	int	nl_index;
+	size_t	total;
 }static_var;
 
 

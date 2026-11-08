@@ -17,76 +17,95 @@ int find_nl(char *s)
 	return (-1);
 }
 
-char *ft_realloc(char *old, size_t new_size)
+int ft_strlen(char *s)
 {
-	size_t size;
-	char	*new;
-	size_t i;
+	if (!s)
+		return (0);
+	int i = 0;
+	while (s[i])
+		i++;
+	return (i);
+}
 
-	size = sizeof(old);
-	new = malloc(new_size);
+char *ft_realloc(char *old, static_var *var)
+{
+	int size;
+	char	*new;
+	int i;
+	size_t j;
+
+	size = ft_strlen(old);
+	if (var->size_read == BUFF_SIZE)
+	size += BUFF_SIZE
+	new = malloc(size + var->nl_index);
 	if (!new)
+	{
+		free(old);
 		return (NULL);
+	}
 	i = 0;
+	j = 0;
 	while (i < size)
 	{
-		new[i] = old[i]
+		new[i] = old[i];
 		i++;
+	}
+	free (old);
+	while (i < var->size_read)
+	{
+		new[i] = var->buff[j];
+		i++;
+		j++;
 	}
 	return (new);
 }
 
-char *fill(char *s, int len)
+char *fill(static_var *var, char *old)
 {
 	char *new;
 	int i;
 
-	new = malloc(len + 1);
+	new = NULL;
+	new = ft_realloc(old, var);
 	if (!new)
 		return (NULL);
 	i = 0;
-	while (i < len)
+	while (i < var->nl_index)
 	{
-		new[i] = s[i];
+		new[i] = var->buff[i];
 		i++;
 	}
 	new[i] = 0;
 	return (new);
 }
 
+
+
 char *get_next_line(int fd)
 {
-	static static_var neces = {0};
-	char *line;
-	int	count;
-	int nl;
-	int i;
+	static static_var var;
+	char *new;
 
-
-	i = 1;
-	nl = -1;
-	while (nl < 1)
+	new = NULL;
+	while (1)
 	{
-		neces.cur_indx = read(fd,  neces.buff, BUFF_SIZE);
-		if (neces.cur_indx <= 0)
+		var.size_read = read(fd, var.buff, BUFF_SIZE);
+		if (var.size_read < 0)
 			return (NULL);
-		neces.total += neces.cur_indx;
-		nl = find_nl(neces.buff);
-		if (nl >= 0)
+		var.nl_index = find_nl(var.buff);
+		if (var.nl_index < 0)
 		{
-			line = malloc(neces.total + 1);
-			if (!line)
-				return (NULL);
-			line = fill (neces.buff, nl);
+			var.total += var.nl_index + 1;
+			new = fill(&var, new);
+			return (new);
 		}
-		else 
+		else
 		{
-			line = ft_realloc(line ,neces.total);
-			if (!line)
-				return (NULL);
+			var.total += BUFF_SIZE;
+			new = ft_realloc(new, &var);
 		}
-		i++;
 	}
+	
 	return (NULL);
 }
 
