@@ -4,16 +4,16 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#define	BUFF_SIZE	1024
+#define BUFF_SIZE 1024
 
-typedef struct static_var
+typedef struct list
 {
-	char buff[BUFF_SIZE];
-	long	size_read;
-	int	nl_index;
-	size_t	total;
-}static_var;
-
+	char		*stash;
+	int			nl_index;
+	int			current_index;
+	int			read_bytes;
+	struct list *new;	
+} list;
 
 char *get_next_line(int fd);
 

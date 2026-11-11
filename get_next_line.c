@@ -1,122 +1,135 @@
 #include "get_next_line.h"
- #include <fcntl.h>
- #include <stdio.h>
-int find_nl(char *s)
+#include <fcntl.h>
+#include <stdio.h>
+
+
+list	*ls_new(int fd)
 {
-	ssize_t i;
+	list *new;
+	char *buff;
 
-	i = 0;
-	while (s[i])
-	{
-		if (s[i] == 0)
-			return (i);
-		if (s[i] == '\n')
-			return (++i);
-		i++;
-	}
-	return (-1);
-}
-
-int ft_strlen(char *s)
-{
-	if (!s)
-		return (0);
-	int i = 0;
-	while (s[i])
-		i++;
-	return (i);
-}
-
-char *ft_realloc(char *old, static_var *var)
-{
-	int size;
-	char	*new;
-	int i;
-	size_t j;
-
-	size = ft_strlen(old);
-	if (var->size_read == BUFF_SIZE)
-	size += BUFF_SIZE
-	new = malloc(size + var->nl_index);
+	buff = malloc(BUFF_SIZE);
+	if (!buff)
+		return (NULL);
+	new = malloc(sizeof(list));
 	if (!new)
 	{
-		free(old);
+		free(buff);
 		return (NULL);
 	}
-	i = 0;
-	j = 0;
-	while (i < size)
-	{
-		new[i] = old[i];
-		i++;
-	}
-	free (old);
-	while (i < var->size_read)
-	{
-		new[i] = var->buff[j];
-		i++;
-		j++;
-	}
+	new->read_bytes = read(fd, buff, BUFF_SIZE);
+	new->current_index = 0;
+	new->nl_index = -1;
+	new->stash = buff;
 	return (new);
 }
 
-char *fill(static_var *var, char *old)
+list *add_back(list **head, list *new)
 {
-	char *new;
-	int i;
-
-	new = NULL;
-	new = ft_realloc(old, var);
-	if (!new)
-		return (NULL);
-	i = 0;
-	while (i < var->nl_index)
+	while (*head)
 	{
-		new[i] = var->buff[i];
-		i++;
-	}
-	new[i] = 0;
-	return (new);
-}
-
-
-
-char *get_next_line(int fd)
-{
-	static static_var var;
-	char *new;
-
-	new = NULL;
-	while (1)
-	{
-		var.size_read = read(fd, var.buff, BUFF_SIZE);
-		if (var.size_read < 0)
-			return (NULL);
-		var.nl_index = find_nl(var.buff);
-		if (var.nl_index < 0)
+		if (!(*head)->new)
 		{
-			var.total += var.nl_index + 1;
-			new = fill(&var, new);
+			(*head)->new = new;
 			return (new);
 		}
 		else
-		{
-			var.total += BUFF_SIZE;
-			new = ft_realloc(new, &var);
-		}
+			*head = (*head)->new;
 	}
-	
+}
+
+void delet_until(list **head, list *last)
+{
+	list *tmp;
+
+	while (*head != last)
+	{
+		tmp = (*head)->new;
+		free(*head);
+		*head = tmp;
+	}
+}
+char *clear(list **head)
+{
+	list *tmp;
+
+	while (*head)
+	{
+		tmp = (*head)->new;
+		free((*head)->stash);
+		free(*head);
+		*head = tmp;
+	}
+	return (NULL);
+}
+
+list *get_last(list *head)
+{
+	while (head)
+	{
+		if(!head->new)
+			return (head);
+		else
+			head = head->new;
+	}
 	return (NULL);
 }
 
 
+int find_nl(list *node)
+{
+	int i;
+
+	i = 0;
+	while (node->current_index + i < node->read_bytes)
+	{
+		if (node->stash[i] == '\n' || !node->stash[i])
+		{
+			node->current_index += ++i;
+			return (node->nl_index = i);
+		}
+		i++;
+	}
+	node->current_index += ++i;
+	node->nl_index = -1;
+	return (-1);
+}
+
+
+char *get_next_line(int fd)
+{
+	static list *head;
+	list *curnt;
+	char *str;
+
+	if (!head)
+	{
+		head = ls_new(fd);
+		if (!head)
+			return (NULL);	
+	}
+	while (1)
+	{
+		curnt = get_last(head);
+		if (curnt->read_bytes <= 0)
+			return (clear(head));
+		if (curnt->current_index == curnt->read_bytes)
+		{
+			
+		}
+	}
+	
+}
+
+// read(fd, NULL, BUFFER_SIZE)
 int main ()
 {
-	int fd = open("test.txt", O_RDWR);
+	int fd = open("test.txt", O_RDONLY);
+	char *ptr;
 	for (size_t i = 0; i < 5; i++)
 	{
-		/* code */
-		printf("%s",get_next_line(fd));
+		ptr = get_next_line(fd);
+		printf("string : %s",ptr);
 	}
 	
 	close(fd);

@@ -1,53 +1,11 @@
-Game engines Article
-Talk
-Read
-Edit
-View history
-
-Appearance hide
-Text
-
-Small
-
-Standard
-
-Large
-Width
-
-Standard
-
-Wide
-Color
-
-Automatic
-
-Light
-
-Dark
-From Wikipedia, the free encyclopedia
-
-This article has multiple issues. Please help improve it or discuss these issues on the talk page. (Learn how and when to remove these messages)
-This article needs to be updated. (February 2018)
-This article may contain original research. (August 2019)
-This article needs more citations. (November 2019)
-You can help expand this article with text translated from the corresponding article in Portuguese. (February 2026) Click [show] for important translation instructions.
-
-Part of a series on the
-Video game industry
-Development
-Products
-Publishing
-Distribution and monetization
-Related
-Lists
-vte
-A game engine is a software framework primarily designed for the development of video games, and generally includes relevant libraries and support programs.[1] The "engine" terminology is similar to the term "software engine" used in the software industry.
-
-Furthermore, game engine may also refer to the integrated development environment as an interface behind the given framework, typically a suite of visual development tools and features for developing video games.[2][3]
-
-Game developers can use game engines to create and publish video games across platforms, such as desktops, mobile devices, video game consoles, and other types of computers. The core functionalities commonly covered by a game engine are a 2D or 3D renderer, physics engine, audio engine, scripting, animation, artificial intelligence, networking, streaming, memory management, threads, localization support, scene graph, and cinematics. Game engine developers often economize game development through reuse or adaptation of abstractions built into game engines for production of various games,[4] or through porting of videogames from a single to other target platforms.
-
-Purpose
-
-Creating a platform game in Godot
-In many cases, game engines provide a suite of visual development tools in addition to reusable software components. These tools are generally provided in an integrated development environment to enable simplified, rapid development of games in a data-driven manner. Game-engine developers often attempt to preempt implementer needs by developing robust software suites, which include many elements a game developer may need to build a game. Most game-engine suites provide facilities that ease development, such as graphics, sound, physics and artificial intelligence (AI) functions. These game engines are sometimes called "middleware" because, as with the business sense of the term, they provide a flexible and reusable software platform which provides all the core functionality needed, right out of the box, to develop a game application while reducing costs, complexities, and time-to-market—all critical factors in the highly competitive video game indu
+Copyright (C) 2022 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<https://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
