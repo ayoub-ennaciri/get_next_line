@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#define BUFF_SIZE 1024
+#define BUFF_SIZE 10
 
 typedef struct list
 {
@@ -12,6 +12,7 @@ typedef struct list
 	int			nl_index;
 	int			current_index;
 	int			read_bytes;
+	char		*start;
 	struct list *new;	
 } list;
 
