@@ -2,6 +2,19 @@
 #include <fcntl.h>
 #include <stdio.h>
 
+void *clear(list *head)
+{
+	list *tmp;
+
+	while (head)
+	{
+		tmp = (head)->next;
+		free((head)->stash);
+		free(head);
+		head = tmp;
+	}
+	return (NULL);
+}
 
 list	*ls_new(int fd)
 {
@@ -18,25 +31,32 @@ list	*ls_new(int fd)
 		return (NULL);
 	}
 	new->read_bytes = read(fd, buff, BUFF_SIZE);
-	new->current_index = 0;
+	if (new->read_bytes <= 0)
+		return (NULL);
 	new->nl_index = -1;
 	new->stash = buff;
 	new->start = buff;
 	return (new);
 }
 
-list *add_back(list *head, list *new)
+list *add_back(list **head,list *new)
 {
-	while (head)
+	list *tmp;
+
+	tmp = *head;
+	while (tmp)
 	{
-		if (!head->new)
+		if (!(tmp)->next)
 		{
-			head->new = new;
-			break;		
+			(tmp)->next = new;
+			break;
 		}
-		head = head->new;
+		(tmp) = (tmp)->next;
 	}
-	
+	if (!*head && new)
+		return (*head = new);
+	else if (!new)
+		return (clear(*head));
 	return (new);
 }
 
@@ -46,34 +66,22 @@ void delet_until(list **head, list *last)
 
 	while (*head != last)
 	{
-		tmp = (*head)->new;
+		tmp = (*head)->next;
 		free(*head);
 		*head = tmp;
 	}
 }
-char *clear(list **head)
-{
-	list *tmp;
 
-	while (*head)
-	{
-		tmp = (*head)->new;
-		free((*head)->stash);
-		free(*head);
-		*head = tmp;
-	}
-	return (NULL);
-}
 
 list *get_last(list *head)
 {
 	while (head)
 	{
-		if(!head->new)
+		if(!head->next)
 			return (head);
 		else
-			head = head->new;
-	}
+			head = head->next;
+	}	
 	return (NULL);
 }
 
@@ -82,17 +90,13 @@ int find_nl(list *node)
 {
 	int i;
 
-	i = node->current_index;
-	while (i < node->read_bytes)
+	i = 0;
+	while (node->start + i < node->stash + node->read_bytes)
 	{
-		if ( (node->stash[i] == '\n' || !node->stash[i]))
-		{
-			node->current_index = i;
+		if ( (*(node->start + i) == '\n' || !*(node->start + i)))
 			return (node->nl_index = i);
-		}
 		i++;
 	}
-	node->current_index += i;
 	node->nl_index = -1;
 	return (-1);
 }
@@ -111,7 +115,7 @@ char *give_me_line(list *start)
 			i += tmp->read_bytes;
 		else 
 			i += &tmp->stash[tmp->nl_index] - tmp->start;
-		tmp = tmp->new; 
+		tmp = tmp->next; 
 	}
 	str = malloc(i + 1);
 	if (!str)
@@ -127,14 +131,17 @@ char *give_me_line(list *start)
 		else
 			max = &tmp->stash[tmp->nl_index] - tmp->start;
 		i = 0;
-		if (max == 0)
+		if (max == 0 && !tmp->nl_index)
+		{
 			max = 1;
+			tmp->read_bytes -= 1;
+		}
 		while (i < max)
 		{
 			copy[i++] = *(tmp->start++);
 		}
 		copy = &copy[i];
-		tmp = tmp->new;
+		tmp = tmp->next;
 	}
 		copy[i] = 0;
 	return (str);
@@ -145,44 +152,27 @@ char *get_next_line(int fd)
 	static list *head;
 	list *curnt;
 	list *start;
-	int lock;
-	//char *str;
 
-	if (!head)
-	{
-		head = ls_new(fd);
-		if (!head)
-			return (NULL);	
-	}
 	start = NULL;
-	lock = 0;
 	while (1)
 	{
 		curnt = get_last(head);
-		if (curnt->read_bytes <= 0)
-			return (clear(&head));
-		if (curnt->current_index == curnt->read_bytes)
+		if (!head || find_nl(curnt) == -1)
 		{
-			add_back(head, ls_new(fd));
+			if (!start)
+			start = curnt;
+			if (!add_back(&head, ls_new(fd))) 
+				return (NULL);
 			curnt = get_last(head);
 		}
-		curnt->nl_index = find_nl(curnt);
-		if (!lock)
-		{
-			start = curnt;
-			lock = 1;
-		}
-		if (curnt->nl_index < 0 )
-		{
-			continue;
-		}
-		//if (!start)
-		//	start = curnt;
-		lock = 0;
-			return (give_me_line(start));  
+		if (curnt->read_bytes <= 0)
+			return (clear(head));
 		
+		if (curnt->nl_index < 0)
+			continue;
+		//start = NULL;
+			return (give_me_line(start));
 	}
-	
 }
 
 // read(fd, NULL, BUFFER_SIZE)

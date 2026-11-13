@@ -10,10 +10,9 @@ typedef struct list
 {
 	char		*stash;
 	int			nl_index;
-	int			current_index;
 	int			read_bytes;
 	char		*start;
-	struct list *new;	
+	struct list *next;	
 } list;
 
 char *get_next_line(int fd);
