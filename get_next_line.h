@@ -8,10 +8,11 @@
 
 typedef struct list
 {
-	char		*stash;
+	char		*buff;
+	char		*cursor;
+	char		*pos;
 	int			nl_index;
 	int			read_bytes;
-	char		*start;
 	struct list *next;	
 } list;
 

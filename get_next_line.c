@@ -175,6 +175,17 @@ char *get_next_line(int fd)
 	}
 }
 
+char *get_next_line(int fd)
+{
+	list *head;
+
+	while (1)
+	{
+		/* code */
+	}
+	
+}
+
 // read(fd, NULL, BUFFER_SIZE)
 int main ()
 {
