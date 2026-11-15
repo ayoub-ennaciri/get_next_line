@@ -16,6 +16,7 @@ list *ls_new(int fd)
 		return (NULL);
 	}
 	node->read_bytes = read(fd, node->buff, BUFF_SIZE);
+	//node->buff[BUFF_SIZE] = 0;
 	node->cursor = node->buff;
 	node->pos = node->buff;
 	node->nl_index = -1;
@@ -55,9 +56,7 @@ int	find_nl(list *node)
 	while (node->cursor < node->buff + node->read_bytes)
 	{
 		if (*node->cursor == '\n' || *node->cursor == 0)
-		{
-			return (node->nl_index = node->cursor++ - node->buff);
-		}
+			return (node->nl_index = node->cursor - node->buff);
 		node->cursor++;
 	}
 	return (node->nl_index = -1);
@@ -65,54 +64,30 @@ int	find_nl(list *node)
 
 char *give_me_line(list *start)
 {
-	int size;
-	list *tmp;
-	char *str;
-	char *copy;
-	int	max;
+	list	*tmp;
+	int 	len;
+	char 	*str;
+	char 	*copy;
 
-	size = 0;
+	len = 0;
 	tmp = start;
 	while (tmp)
 	{
-		if (tmp->read_bytes > 0 && tmp->nl_index >= 0)
-		{
-			size += (tmp->buff + tmp->nl_index) - tmp->pos;
-			if (tmp->pos[(tmp->buff + tmp->nl_index) - tmp->pos] == '\n')
-				size++;
-		}
-		else
-			size += (tmp->buff + tmp->read_bytes) - tmp->pos;
+		len += tmp->cursor - tmp->buff;
+		tmp = tmp->next;
+	}
+	str = malloc(len + 1);
+	if (!str)
+		return (NULL);
+	tmp = start;
+	copy = str;
+	while (tmp)
+	{
+		while (tmp->pos < tmp->cursor)
+			*copy++ = *tmp->pos++;
 		tmp = tmp->next;
 	}
 	
-	if (!size)
-		return (NULL);
-	if (!(str = malloc(size + 1)))
-	{
-		clean (start);
-		return (NULL);
-	}
-	
-	str[size ] = '$';
-	copy = str;
-	while (start)
-	{
-		if (start->nl_index >= 0)
-			max = (start->buff + start->nl_index) - start->pos;
-		else
-			max = (start->buff + start->read_bytes) - start->pos;
-		while (start->pos < start->buff + max)
-			*(copy++) = *(start->pos++);
-		if (start->pos[(start->buff + max) - start->pos] == '\n')
-		{
-			*(copy) = '\n';
-			start->pos++;
-		}
-		start = start->next;
-	}
-	if (*copy == '\n')
-		*++copy = 0;
 	return (str);
 }
 
