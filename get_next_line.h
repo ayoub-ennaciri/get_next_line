@@ -17,5 +17,9 @@ typedef struct list
 } list;
 
 char *get_next_line(int fd);
+list *ls_new(int fd);
+list	*get_last(list *head);
+list *add_back(list *head, int fd);
+int	find_nl(list *node);
 
 #endif
