@@ -1,30 +1,34 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ayennaci <ayennaci@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/11/26 11:15:23 by ayennaci          #+#    #+#             */
+/*   Updated: 2026/11/26 11:23:09 by ayennaci         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
-list *ls_new(int fd)
+t_list	*ls_new(int fd)
 {
-	list	*node;
-	char *str;
-	int read_bytes;
-	
-	str = malloc(BUFF_SIZE);
-	if (!str)
-	{
-		//free(node);
-		return (NULL);
-	}
-	read_bytes = read(fd, str, BUFF_SIZE);
-	if (read_bytes <= 0)
-	{
-		free(str);
-		return (NULL);
-	}
+	t_list	*node;
+	char	*str;
+	int		read_bytes;
 
-	node = malloc(sizeof(list));
-	if (!node)
+	str = malloc(BUFFER_SIZE);
+	if (!str)
 		return (NULL);
+	read_bytes = read(fd, str, BUFFER_SIZE);
+	if (read_bytes <= 0)
+		return (free(str), NULL);
+	node = malloc(sizeof(t_list));
+	if (!node)
+		return (free(str), NULL);
 	node->read_bytes = read_bytes;
 	node->buff = str;
-	//node->buff[BUFF_SIZE] = 0;
 	node->cursor = node->buff;
 	node->pos = node->buff;
 	node->nl_index = -1;
@@ -32,7 +36,7 @@ list *ls_new(int fd)
 	return (node);
 }
 
-list	*get_last(list *head)
+t_list	*get_last(t_list *head)
 {
 	while (head)
 	{
@@ -43,9 +47,9 @@ list	*get_last(list *head)
 	return (NULL);
 }
 
-list *add_back(list *head, int fd)
+t_list	*add_back(t_list *head, int fd)
 {
-	list *last;
+	t_list	*last;
 
 	last = get_last(head);
 	last->next = ls_new(fd);
@@ -54,11 +58,13 @@ list *add_back(list *head, int fd)
 	return (last->next);
 }
 
-int	find_nl(list *node)
+int	find_nl(t_list *node)
 {
+	if (!node)
+		return (1);
 	while (node->cursor < node->buff + node->read_bytes)
 	{
-		if (*node->cursor == '\n' || *node->cursor == 0)
+		if (*node->cursor == '\n')
 			return (node->nl_index = node->cursor++ - node->buff);
 		node->cursor++;
 	}
